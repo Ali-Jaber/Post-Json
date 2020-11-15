@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="comments_recyclerView_marginTop">38dp</dimen>
+    <dimen name="comments_recyclerView_paddingTop">34dp</dimen>
+    <dimen name="main_recyclerView_marginTop">34dp</dimen>
+    <dimen name="main_recyclerView_paddingTop">34dp</dimen>
+    <dimen name="post_title_marginStart">30dp</dimen>
+    <dimen name="post_title_marginTop">20dp</dimen>
+    <dimen name="post_title_marginEnd">20dp</dimen>
+    <dimen name="post_title_textSize">25sp</dimen>
+    <dimen name="post_body_marginStart">30dp</dimen>
+    <dimen name="post_body_marginTop">24dp</dimen>
+    <dimen name="post_body_marginEnd">20dp</dimen>
+    <dimen name="post_body_textSize">18sp</dimen>
+    <dimen name="post_comments_btn_marginTop">24dp</dimen>
+    <dimen name="post_comments_btn_textSize">18sp</dimen>
+    <dimen name="commentsItem_constraintLayout_marginStart">24dp</dimen>
+    <dimen name="commentsItem_constraintLayout_marginTop">24dp</dimen>
+    <dimen name="commentsItem_constraintLayout_marginEnd">24dp</dimen>
+    <dimen name="commentsItem_name_textSize">25sp</dimen>
+    <dimen name="commentsItem_email_paddingTop">8dp</dimen>
+    <dimen name="commentsItem_email_textSize">15sp</dimen>
+    <dimen name="commentsItem_body_paddingTop">8dp</dimen>
+    <dimen name="commentsItem_body_paddingBottom">8dp</dimen>
+    <dimen name="commentsItem_body_textSize">20sp</dimen>
+    <dimen name="postItem_title_textSize">30sp</dimen>
+
+
+</resources>

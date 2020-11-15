@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Post Json</string>
+    <string name="name">Name</string>
+    <string name="email">email@email.com</string>
+    <string name="post_details">post details</string>
+    <string name="comments">comments</string>
+    <string name="post_body">Post Body</string>
+</resources>
