@@ -15,7 +15,7 @@
     <dimen name="post_comments_btn_marginTop">24dp</dimen>
     <dimen name="post_comments_btn_textSize">18sp</dimen>
     <dimen name="commentsItem_constraintLayout_marginStart">24dp</dimen>
-    <dimen name="commentsItem_constraintLayout_marginTop">24dp</dimen>
+    <dimen name="commentsItem_constraintLayout_marginTop">16dp</dimen>
     <dimen name="commentsItem_constraintLayout_marginEnd">24dp</dimen>
     <dimen name="commentsItem_name_textSize">25sp</dimen>
     <dimen name="commentsItem_email_paddingTop">8dp</dimen>

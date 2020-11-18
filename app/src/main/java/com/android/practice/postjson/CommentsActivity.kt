@@ -15,6 +15,7 @@ import com.android.practice.postjson.util.POST_ID
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_comments.*
 
 class CommentsActivity : BaseActivity() {
 
@@ -29,10 +30,20 @@ class CommentsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comments)
         initToolbar()
-        title = "Comments"
-        window.decorView.systemUiVisibility = View  .SYSTEM_UI_FLAG_FULLSCREEN
+        title = getString(R.string.comments_title)
 
         val postId = intent.extras?.getInt(POST_ID)
+
+        initList()
+        loadData(postId)
+
+        commentSwipeRefresh.setOnRefreshListener {
+            loadData(postId)
+            commentSwipeRefresh.isRefreshing = false
+        }
+    }
+
+    private fun initList() {
         recyclerView = findViewById(R.id.comment_recyclerView)
         commentsAdapter = object : GenericAdapter<Comments, CommentsViewHolder>() {
 
@@ -49,9 +60,10 @@ class CommentsActivity : BaseActivity() {
                 holder.email.text = item.email
             }
         }
-
         recyclerView.adapter = commentsAdapter
+    }
 
+    private fun loadData(postId: Int?) {
         disposable.add(
             apiService.getCommentsDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())

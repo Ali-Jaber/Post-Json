@@ -5,4 +5,7 @@
     <string name="post_details">post details</string>
     <string name="comments">comments</string>
     <string name="post_body">Post Body</string>
+    <string name="posts">Posts</string>
+    <string name="comments_title">Comments</string>
+    <string name="post_details_title">Post Details</string>
 </resources>
