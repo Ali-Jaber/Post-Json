@@ -21,8 +21,8 @@ abstract class GenericAdapter<T, VM : RecyclerView.ViewHolder> :
 
     override fun getItemCount() = list.size
 
-    fun addItem(position: Int, item: T) {
-        list.add(position, item)
+    fun addItem(item: T) {
+        list.add(0, item)
         notifyDataSetChanged()
     }
 

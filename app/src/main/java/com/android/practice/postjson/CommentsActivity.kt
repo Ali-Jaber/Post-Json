@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.android.practice.postjson.adapter.CommentsViewHolder
 import com.android.practice.postjson.adapter.GenericAdapter
+import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.di.RetrofitModule
 import com.android.practice.postjson.model.Comments
 import com.android.practice.postjson.network.PostApiService
@@ -16,12 +17,16 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_comments.*
+import retrofit2.Retrofit
+import javax.inject.Inject
 
 class CommentsActivity : BaseActivity() {
 
-    private val apiService by lazy {
-        RetrofitModule.getApiClient().create(PostApiService::class.java)
-    }
+    @Inject
+    lateinit var postApiService: PostApiService
+    @Inject
+    lateinit var retrofit: Retrofit
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var commentsAdapter: GenericAdapter<Comments, CommentsViewHolder>
     private val disposable = CompositeDisposable()
@@ -29,6 +34,7 @@ class CommentsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comments)
+        NetComponent.getComponent(this).inject(this)
         initToolbar()
         title = getString(R.string.comments_title)
 
@@ -65,7 +71,7 @@ class CommentsActivity : BaseActivity() {
 
     private fun loadData(postId: Int?) {
         disposable.add(
-            apiService.getCommentsDetails(postId!!)
+            postApiService.getCommentsDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({

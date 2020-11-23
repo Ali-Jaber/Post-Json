@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.di.RetrofitModule
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
@@ -12,17 +13,23 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_post_details.*
+import retrofit2.Retrofit
+import javax.inject.Inject
 
 class PostDetailsActivity : BaseActivity() {
 
-    private val apiService by lazy {
-        RetrofitModule.getApiClient().create(PostApiService::class.java)
-    }
+    @Inject
+    lateinit var postApiService: PostApiService
+
+    @Inject
+    lateinit var retrofit: Retrofit
+
     private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post_details)
+        NetComponent.getComponent(this).inject(this)
         initToolbar()
         title = getString(R.string.post_details_title)
 
@@ -39,7 +46,7 @@ class PostDetailsActivity : BaseActivity() {
 
     private fun loadData(postId: Int?) {
         disposable.add(
-            apiService.getPostDetails(postId!!)
+            postApiService.getPostDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({

@@ -2,12 +2,14 @@ package com.android.practice.postjson
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.android.practice.postjson.adapter.GenericAdapter
 import com.android.practice.postjson.adapter.PostViewHolder
+import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
 import com.android.practice.postjson.util.POST_ID
@@ -19,53 +21,32 @@ import retrofit2.Retrofit
 import javax.inject.Inject
 
 
-open class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity() {
 
-//    lateinit var appComponent: AppComponent
-//        private set
-//
-//    companion object {
-//        lateinit var instance: MainActivity
-//            private set
-//    }
-
-
-//    @JvmField
-//    @Inject
-//    var retrofit: Retrofit?= null
-
-//    @JvmField
-//    @Inject
+    @Inject
     lateinit var postApiService: PostApiService
 
     @Inject
     lateinit var retrofit: Retrofit
 
-    //    private val postApiService by lazy {
-//        RetrofitModule.getApiClient().create(PostApiService::class.java)
-//    }
     private lateinit var recyclerView: RecyclerView
     private lateinit var postAdapter: GenericAdapter<Post, PostViewHolder>
     private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-//        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        (application as App).netComponent!!.injectMainActivity(this)
-        postApiService = retrofit.create(PostApiService::class.java)
-//        postApiService = retrofit?.create(PostApiService::class.java)
-
-//        initComponent()
+        NetComponent.getComponent(this).inject(this)
         initToolbar()
         title = getString(R.string.posts)
         initList()
         loadData()
-
-//        (application as CustomApplication).getAppComponent()?.inject(this@MainActivity)
-
-//        x = retrofit.create(PostApiService::class.java)
-//        appComponent.inject(instance)
+        fb_addPost.setOnClickListener {
+            Intent(this, AddPostActivity::class.java)
+                .also {
+                    startActivityForResult(it,1)
+                }
+        }
 
         postSwipeRefresh.setOnRefreshListener {
             loadData()
@@ -73,16 +54,15 @@ open class MainActivity : BaseActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val post: Post = data?.extras?.getParcelable<Parcelable>("post") as Post
+        postAdapter.addItem(post)
+    }
     override fun onStop() {
         super.onStop()
         disposable.clear()
     }
-
-//    private fun initComponent() {
-//        appComponent = DaggerAppComponent.builder()
-//            .build()
-//        appComponent.inject(this)
-//    }
 
     private fun initList() {
         recyclerView = findViewById(R.id.post_recyclerView)
@@ -97,13 +77,11 @@ open class MainActivity : BaseActivity() {
                 holder.title.text = item.title
                 holder.itemView.setOnClickListener {
                     val intent = Intent(this@MainActivity, PostDetailsActivity::class.java)
-//                        .apply {
-//                            putExtra(POST_ID, item.id)
-//                        }.also {
-//                            startActivity(it)
-//                        }
-                    intent.putExtra(POST_ID, item.id)
-                    startActivity(intent)
+                        .apply {
+                            putExtra(POST_ID, item.id)
+                        }.also {
+                            startActivity(it)
+                        }
                 }
             }
         }
@@ -112,15 +90,15 @@ open class MainActivity : BaseActivity() {
 
     private fun loadData() {
         disposable.add(
-        postApiService.getPosts()
-            .observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({
-                Log.d("size", it.size.toString())
-                setDataInRecyclerView(it);
-            }, {
-                Log.d("error", "errors")
-            })
+            postApiService.getPosts()
+                .observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({
+                    Log.d("size", it.size.toString())
+                    setDataInRecyclerView(it);
+                }, {
+                    Log.d("error", "errors")
+                })
         )
     }
 

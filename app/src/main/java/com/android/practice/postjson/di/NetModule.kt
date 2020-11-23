@@ -1,5 +1,6 @@
 package com.android.practice.postjson.di
 
+import com.android.practice.postjson.network.PostApiService
 import com.android.practice.postjson.util.BASE_URL
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -35,4 +36,8 @@ object NetModule {
             .client(provideHttpClient())
             .build()
 
+    @Provides
+    fun post(): PostApiService {
+        return provideRetrofit().create(PostApiService::class.java)
+    }
 }
