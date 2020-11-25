@@ -2,11 +2,15 @@ package com.android.practice.postjson
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_post.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -16,48 +20,48 @@ import javax.inject.Inject
 
 class AddPostActivity : BaseActivity() {
 
+    private val progressDialog by lazy { CustomProgressDialog() }
+
     @Inject
     lateinit var postApiService: PostApiService
 
     @Inject
     lateinit var retrofit: Retrofit
-    
+
+    private var id = 101
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_post)
         NetComponent.getComponent(this).inject(this)
         initToolbar()
         title = getString(R.string.add_post)
+        initView()
+    }
+
+    private fun initView() {
         btnAddPost.setOnClickListener {
-            val title = editTextTitle.text.toString()
-            val body = editTextBody.text.toString()
-            val post = Post(2, 2, title, body)
-            val loadData = loadData(post)
-           loadData.enqueue(object : Callback<Post> {
-                override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    if (response.isSuccessful) {
-                        Log.e("onResponse", "${response.body()}")
-                        Toast.makeText(this@AddPostActivity, "Post Added", Toast.LENGTH_SHORT)
-                            .show()
-                        Intent(this@AddPostActivity, MainActivity::class.java).apply {
-                            Log.e("this", "$post")
-                            putExtra("post", post)
-                        }.also {
-                            setResult(1, it)
-                            finish()
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<Post>, t: Throwable) {
-                    Log.e("onFailure", "${t.message}")
-                }
-
-            })
+            savePost()
         }
     }
 
-    private fun loadData(post: Post): Call<Post> {
-        return postApiService.createPost(post)
+    private fun savePost() {
+        val post = Post(2, id++, textField.editText?.text.toString(), out.editText?.text.toString())
+        postApiService.createPost(post)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext {
+                progressDialog.show(this, "Please Wait...")
+            }
+            .subscribeOn(Schedulers.io())
+            .subscribe({ resp ->
+                Intent().apply {
+                    Log.e("this", "$post")
+                    putExtra("post", post)
+                }.also {
+                    setResult(RESULT_OK, it)
+                    finish()
+                }
+            }, {
+                Log.e("error", "errors", it)
+            })
     }
 }

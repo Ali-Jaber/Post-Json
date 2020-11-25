@@ -24,6 +24,7 @@ class CommentsActivity : BaseActivity() {
 
     @Inject
     lateinit var postApiService: PostApiService
+
     @Inject
     lateinit var retrofit: Retrofit
 
@@ -45,7 +46,6 @@ class CommentsActivity : BaseActivity() {
 
         commentSwipeRefresh.setOnRefreshListener {
             loadData(postId)
-            commentSwipeRefresh.isRefreshing = false
         }
     }
 
@@ -70,13 +70,15 @@ class CommentsActivity : BaseActivity() {
     }
 
     private fun loadData(postId: Int?) {
+        commentSwipeRefresh.isRefreshing = true
         disposable.add(
             postApiService.getCommentsDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     Log.d("size", it.size.toString())
-                    setDataInRecyclerView(it);
+                    setDataInRecyclerView(it)
+                    commentSwipeRefresh.isRefreshing = false
                 }, {
                     Log.d("error", "errors")
                 })

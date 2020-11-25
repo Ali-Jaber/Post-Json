@@ -10,44 +10,56 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <EditText
-        android:id="@+id/editTextTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/custom_edit_text"
-        android:ems="10"
-        android:hint="@string/title"
-        android:inputType="textPersonName"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+    <!--    <EditText-->
+    <!--        android:id="@+id/editTextTitle"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="16dp"-->
+    <!--        android:layout_marginTop="16dp"-->
+    <!--        android:layout_marginEnd="16dp"-->
+    <!--        android:background="@drawable/custom_edit_text"-->
+    <!--        android:ems="10"-->
+    <!--        android:hint="@string/title"-->
+    <!--        android:inputType="textPersonName"-->
+    <!--        android:paddingStart="12dp"-->
+    <!--        android:paddingEnd="12dp"-->
+    <!--        android:textSize="22sp"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/toolbar" />-->
 
-    <EditText
-        android:id="@+id/editTextBody"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/custom_edit_text"
-        android:ems="10"
-        android:hint="@string/body"
-        android:inputType="textMultiLine"
-        android:maxLines="10"
-        android:minLines="1"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTitle" />
+    <!--    <EditText-->
+    <!--        android:id="@+id/editTextBody"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="16dp"-->
+    <!--        android:layout_marginTop="16dp"-->
+    <!--        android:layout_marginEnd="16dp"-->
+    <!--        android:background="@drawable/custom_edit_text"-->
+    <!--        android:ems="10"-->
+    <!--        android:hint="@string/body"-->
+    <!--        android:inputType="textMultiLine"-->
+    <!--        android:maxLines="10"-->
+    <!--        android:minLines="1"-->
+    <!--        android:paddingStart="12dp"-->
+    <!--        android:paddingEnd="12dp"-->
+    <!--        android:textSize="22sp"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.502"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/editTextTitle" />-->
+
+<!--    <ProgressBar-->
+<!--        android:id="@+id/cp_pbar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="45dp"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginBottom="8dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <Button
         android:id="@+id/btnAddPost"
@@ -59,6 +71,43 @@
         android:text="@string/add"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextBody" />
+        app:layout_constraintTop_toBottomOf="@+id/out" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textField"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/title"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/out"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/body"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textField">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,7 +12,11 @@ import com.android.practice.postjson.adapter.PostViewHolder
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.util.ADD_POST
+import com.android.practice.postjson.util.POST_DELETE
+import com.android.practice.postjson.util.POST_DETAILS
 import com.android.practice.postjson.util.POST_ID
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -41,24 +45,24 @@ class MainActivity : BaseActivity() {
         title = getString(R.string.posts)
         initList()
         loadData()
-        fb_addPost.setOnClickListener {
-            Intent(this, AddPostActivity::class.java)
-                .also {
-                    startActivityForResult(it,1)
-                }
-        }
-
-        postSwipeRefresh.setOnRefreshListener {
-            loadData()
-            postSwipeRefresh.isRefreshing = false
-        }
+        initView()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val post: Post = data?.extras?.getParcelable<Parcelable>("post") as Post
-        postAdapter.addItem(post)
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1) {
+                val post: Post = data?.extras?.getParcelable<Parcelable>("post") as Post
+                postAdapter.addItem(post)
+                showSnackbar("Post Added")
+            } else if (requestCode == 2) {
+                val post = data?.extras?.getParcelable<Parcelable>(POST_DELETE) as Post
+                postAdapter.remove(post)
+                showSnackbar("Post Deleted")
+            }
+        }
     }
+
     override fun onStop() {
         super.onStop()
         disposable.clear()
@@ -76,11 +80,11 @@ class MainActivity : BaseActivity() {
             override fun bindVm(holder: PostViewHolder, position: Int, item: Post) {
                 holder.title.text = item.title
                 holder.itemView.setOnClickListener {
-                    val intent = Intent(this@MainActivity, PostDetailsActivity::class.java)
+                    Intent(this@MainActivity, PostDetailsActivity::class.java)
                         .apply {
                             putExtra(POST_ID, item.id)
                         }.also {
-                            startActivity(it)
+                            startActivityForResult(it, POST_DETAILS)
                         }
                 }
             }
@@ -89,20 +93,41 @@ class MainActivity : BaseActivity() {
     }
 
     private fun loadData() {
+        postSwipeRefresh.isRefreshing = true
         disposable.add(
             postApiService.getPosts()
                 .observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({
-                    Log.d("size", it.size.toString())
                     setDataInRecyclerView(it);
+                    postSwipeRefresh.isRefreshing = false
                 }, {
-                    Log.d("error", "errors")
+                    Log.e("error", "errors", it)
                 })
         )
     }
 
     private fun setDataInRecyclerView(it: List<Post>) {
         postAdapter.addAll(it)
+    }
+
+    private fun initView() {
+        fb_addPost.setOnClickListener {
+            Intent(this, AddPostActivity::class.java)
+                .also {
+                    startActivityForResult(it, ADD_POST)
+                }
+        }
+
+        postSwipeRefresh.setOnRefreshListener {
+            loadData()
+        }
+    }
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(
+            mainView, message,
+            Snackbar.LENGTH_LONG
+        ).setAction("Action", null).show()
     }
 }

@@ -45,4 +45,6 @@ abstract class GenericAdapter<T, VM : RecyclerView.ViewHolder> :
         list.remove(item)
         notifyDataSetChanged()
     }
+
+    fun get(id: Int): T = list[id]
 }

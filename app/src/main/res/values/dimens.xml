@@ -23,7 +23,7 @@
     <dimen name="commentsItem_body_paddingTop">8dp</dimen>
     <dimen name="commentsItem_body_paddingBottom">8dp</dimen>
     <dimen name="commentsItem_body_textSize">20sp</dimen>
-    <dimen name="postItem_title_textSize">30sp</dimen>
+    <dimen name="postItem_title_textSize">18sp</dimen>
 
 
 </resources>
