@@ -8,12 +8,15 @@ import android.view.Menu
 import android.view.MenuItem
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
+import com.android.practice.postjson.model.PostAndUser
 import com.android.practice.postjson.model.User
 import com.android.practice.postjson.network.PostApiService
 import com.android.practice.postjson.util.PLEASE_WAIT
 import com.android.practice.postjson.util.POST_DELETE
 import com.android.practice.postjson.util.POST_ID
 import com.android.practice.postjson.util.USER_ID
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -22,6 +25,7 @@ import kotlinx.android.synthetic.main.activity_post_details.*
 import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
+
 
 class PostDetailsActivity : BaseActivity() {
 
@@ -150,7 +154,21 @@ class PostDetailsActivity : BaseActivity() {
 //            this.response2 = response2
 //            )
         val postDetails: Observable<Post> = postApiService.getPostDetails(1)
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
         val user: Observable<User> = postApiService.getUser(1)
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+
+//        val combined: Observable<PostAndUser> = Observable.zip(
+//            postDetails,
+//            user,
+//            object : Func2<Post?, User?, PostAndUser?>() {
+//                fun call(post: Post?, user: User?): PostAndUser? {
+//                    return PostAndUser(post, user)
+//                }
+//            })
+
         Observable.merge(postDetails, user)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
