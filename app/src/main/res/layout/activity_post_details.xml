@@ -26,6 +26,21 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <TextView
+        android:id="@+id/postDetails_name_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/post_title_marginStart"
+        android:layout_marginTop="@dimen/post_title_marginTop"
+        android:layout_marginEnd="@dimen/post_title_marginEnd"
+        android:paddingTop="@dimen/commentsItem_email_paddingTop"
+        android:text="@string/name"
+        android:textSize="@dimen/commentsItem_email_textSize"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postDetails_title_textView" />
+
+    <TextView
         android:id="@+id/postDetails_body_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,7 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postDetails_title_textView" />
+        app:layout_constraintTop_toBottomOf="@+id/postDetails_name_textView" />
 
     <Button
         android:id="@+id/comments_btn"

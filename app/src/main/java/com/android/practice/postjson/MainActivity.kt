@@ -6,17 +6,18 @@ import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.android.practice.postjson.adapter.GenericAdapter
 import com.android.practice.postjson.adapter.PostViewHolder
+import com.android.practice.postjson.adapter.SimpleItem
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
-import com.android.practice.postjson.util.ADD_POST
-import com.android.practice.postjson.util.POST_DELETE
-import com.android.practice.postjson.util.POST_DETAILS
-import com.android.practice.postjson.util.POST_ID
+import com.android.practice.postjson.util.*
 import com.google.android.material.snackbar.Snackbar
+import com.mikepenz.fastadapter.FastAdapter
+import com.mikepenz.fastadapter.adapters.ItemAdapter
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -26,6 +27,8 @@ import javax.inject.Inject
 
 
 class MainActivity : BaseActivity() {
+
+    private val progressDialog by lazy { CustomProgressDialog() }
 
     @Inject
     lateinit var postApiService: PostApiService
@@ -51,14 +54,22 @@ class MainActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
-            if (requestCode == 1) {
-                val post: Post = data?.extras?.getParcelable<Parcelable>("post") as Post
-                postAdapter.addItem(post)
-                showSnackbar("Post Added")
-            } else if (requestCode == 2) {
-                val post = data?.extras?.getParcelable<Parcelable>(POST_DELETE) as Post
-                postAdapter.remove(post)
-                showSnackbar("Post Deleted")
+            when (requestCode) {
+                ADD_POST -> {
+                    data?.extras?.getParcelable<Parcelable>("post").also {
+                        it as Post
+                        postAdapter.addItem(it)
+                        showSnackbar("Post Added")
+                    }
+                }
+                POST_DETAILS -> {
+                    data?.extras?.getParcelable<Parcelable>(POST_DELETE).also {
+                        it as Post
+                        postAdapter.remove(it)
+                        showSnackbar("Post Deleted")
+                    }
+
+                }
             }
         }
     }
@@ -79,17 +90,25 @@ class MainActivity : BaseActivity() {
 
             override fun bindVm(holder: PostViewHolder, position: Int, item: Post) {
                 holder.title.text = item.title
+                holder.body.text = item.body
                 holder.itemView.setOnClickListener {
                     Intent(this@MainActivity, PostDetailsActivity::class.java)
                         .apply {
                             putExtra(POST_ID, item.id)
+                            putExtra(USER_ID, item.userId)
                         }.also {
                             startActivityForResult(it, POST_DETAILS)
                         }
                 }
             }
         }
+        val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+            .apply {
+            setDrawable(getDrawable(R.drawable.divider)!!)
+        }
+//        itemDecoration.setDrawable(getDrawable(R.drawable.divider)!!)
         recyclerView.adapter = postAdapter
+        recyclerView.addItemDecoration(itemDecoration)
     }
 
     private fun loadData() {
@@ -97,10 +116,14 @@ class MainActivity : BaseActivity() {
         disposable.add(
             postApiService.getPosts()
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext {
+                    progressDialog.show(this, PLEASE_WAIT)
+                }
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({
                     setDataInRecyclerView(it);
                     postSwipeRefresh.isRefreshing = false
+                    progressDialog.dialog.dismiss()
                 }, {
                     Log.e("error", "errors", it)
                 })

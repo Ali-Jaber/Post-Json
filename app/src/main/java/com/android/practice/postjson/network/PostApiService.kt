@@ -2,6 +2,7 @@ package com.android.practice.postjson.network
 
 import com.android.practice.postjson.model.Comments
 import com.android.practice.postjson.model.Post
+import com.android.practice.postjson.model.User
 import io.reactivex.rxjava3.core.Observable
 import retrofit2.http.*
 
@@ -15,6 +16,9 @@ interface PostApiService {
 
     @GET("posts/{postId}/comments")
     fun getCommentsDetails(@Path("postId") postId: Int): Observable<List<Comments>>
+
+    @GET("users/{userId}")
+    fun getUser(@Path("userId") userId: Int): Observable<User>
 
     @POST("posts")
     fun createPost(@Body postModel: Post): Observable<Post>

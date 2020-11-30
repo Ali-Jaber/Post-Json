@@ -7,4 +7,5 @@ import com.android.practice.postjson.R
 
 class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val title = itemView.findViewById<TextView>(R.id.postDetails_title_textView)
+    val body = itemView.findViewById<TextView>(R.id.postDetails_body_textView)
 }

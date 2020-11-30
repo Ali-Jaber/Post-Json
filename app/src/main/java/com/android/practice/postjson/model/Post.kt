@@ -9,7 +9,7 @@ import java.io.Serializable
 @Parcelize
 @Entity(tableName = "post_table")
 data class Post(
-    @SerializedName("user_id") val userId: Int,
+    val userId: Int,
     val id: Int,
     val title: String,
     val body: String,

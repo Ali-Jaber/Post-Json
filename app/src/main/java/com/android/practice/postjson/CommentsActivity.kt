@@ -12,6 +12,7 @@ import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.di.RetrofitModule
 import com.android.practice.postjson.model.Comments
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.util.PLEASE_WAIT
 import com.android.practice.postjson.util.POST_ID
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -21,6 +22,8 @@ import retrofit2.Retrofit
 import javax.inject.Inject
 
 class CommentsActivity : BaseActivity() {
+
+    private val progressDialog by lazy { CustomProgressDialog() }
 
     @Inject
     lateinit var postApiService: PostApiService
@@ -74,10 +77,13 @@ class CommentsActivity : BaseActivity() {
         disposable.add(
             postApiService.getCommentsDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext {
+                    progressDialog.show(this, PLEASE_WAIT)
+                }
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    Log.d("size", it.size.toString())
                     setDataInRecyclerView(it)
+                    progressDialog.dialog.dismiss()
                     commentSwipeRefresh.isRefreshing = false
                 }, {
                     Log.d("error", "errors")

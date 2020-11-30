@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.util.PLEASE_WAIT
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_post.*
@@ -45,11 +46,11 @@ class AddPostActivity : BaseActivity() {
     }
 
     private fun savePost() {
-        val post = Post(2, id++, textField.editText?.text.toString(), out.editText?.text.toString())
+        val post = Post(2, 2, textField.editText?.text.toString(), out.editText?.text.toString())
         postApiService.createPost(post)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                progressDialog.show(this, "Please Wait...")
+                progressDialog.show(this, PLEASE_WAIT)
             }
             .subscribeOn(Schedulers.io())
             .subscribe({ resp ->
@@ -58,6 +59,7 @@ class AddPostActivity : BaseActivity() {
                     putExtra("post", post)
                 }.also {
                     setResult(RESULT_OK, it)
+                    progressDialog.dialog.dismiss()
                     finish()
                 }
             }, {
