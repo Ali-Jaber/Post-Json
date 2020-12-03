@@ -1,6 +1,7 @@
 package com.android.practice.postjson
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,15 +9,12 @@ import android.view.Menu
 import android.view.MenuItem
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
-import com.android.practice.postjson.model.PostAndUser
 import com.android.practice.postjson.model.User
 import com.android.practice.postjson.network.PostApiService
 import com.android.practice.postjson.util.PLEASE_WAIT
 import com.android.practice.postjson.util.POST_DELETE
 import com.android.practice.postjson.util.POST_ID
 import com.android.practice.postjson.util.USER_ID
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -37,6 +35,7 @@ class PostDetailsActivity : BaseActivity() {
     @Inject
     lateinit var retrofit: Retrofit
 
+    private lateinit var loadingDialog: LoadingDialog
     private val disposable = CompositeDisposable()
     private var postId: Int? = 0
     private var userId: Int? = 0
@@ -47,6 +46,7 @@ class PostDetailsActivity : BaseActivity() {
         setContentView(R.layout.activity_post_details)
         NetComponent.getComponent(this).inject(this)
         initToolbar()
+        loadingDialog = LoadingDialog(this@PostDetailsActivity)
         title = getString(R.string.post_details_title)
 
         postId = intent.extras?.getInt(POST_ID)
@@ -59,7 +59,7 @@ class PostDetailsActivity : BaseActivity() {
 
     override fun onStop() {
         super.onStop()
-        disposable.clear()
+        disposable.dispose()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -93,22 +93,19 @@ class PostDetailsActivity : BaseActivity() {
     private fun deletePost() {
         postApiService.deletePost(postId)
             .subscribeOn(Schedulers.io())
-            .doOnNext {
-                progressDialog.show(this, PLEASE_WAIT)
-            }
+            .doOnSubscribe { loadingDialog.startLoadingDialog() }
             .subscribe({ ps ->
                 Intent().apply {
-                    Log.e("deletepost", "$ps")
-                    Log.e("deletepost", "$postId")
                     putExtra(POST_DELETE, post)
                 }.also {
                     setResult(RESULT_OK, it)
-                    progressDialog.dialog.dismiss()
+                    loadingDialog.dismissDialog()
                     finish()
                 }
             }, {
                 Log.e("error", "errors", it)
             })
+
     }
 
     private fun loadData(postId: Int?) {
@@ -116,7 +113,7 @@ class PostDetailsActivity : BaseActivity() {
             postApiService.getPostDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    progressDialog.show(this, PLEASE_WAIT)
+                    loadingDialog.startLoadingDialog()
                 }
                 .subscribeOn(Schedulers.io())
                 .subscribe({
@@ -124,9 +121,11 @@ class PostDetailsActivity : BaseActivity() {
                     postDetails_body_textView.text = it.body
                     userId = it.userId
                     post = Post(it.userId, it.id, it.title, it.body)
-                    progressDialog.dialog.dismiss()
+//                    progressDialog.dialog.dismiss()
+                    loadingDialog.dismissDialog()
                 }, {
                     Log.e("error", "errors", it)
+                    loadingDialog.dismissDialog()
                 })
         )
     }

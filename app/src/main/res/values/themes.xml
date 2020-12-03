@@ -13,6 +13,9 @@
         <!-- Status bar color. -->
 <!--        <item name="android:statusBarColor"-->
 <!--            tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
+        <item name="materialDrawerStyle">@style/Widget.MaterialDrawerStyle</item>
+        <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
+
         <item name="android:statusBarColor">@android:color/holo_red_dark</item>
         <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
@@ -23,6 +26,9 @@
     <style name="CustomDialogTheme">
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
+<!--    <style name="PostJson.DayNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">-->
+<!--    </style>-->
 
 
 </resources>

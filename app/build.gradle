@@ -32,6 +32,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    dataBinding { enabled true }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -51,7 +54,8 @@ dependencies {
     def room_version = "2.2.5"
     def nav_version = "2.3.0-beta01"
     def dagger2_version = "2.29.1"
-    def latestFastAdapterRelease = "3.2.2"
+    def latestFastAdapterRelease = "5.3.2"
+    def lastestMaterialDrawerRelease = "8.2.0"
 
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
@@ -85,14 +89,26 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     implementation "com.mikepenz:fastadapter:${latestFastAdapterRelease}"
-    implementation "com.mikepenz:fastadapter-extensions-binding:${latestFastAdapterRelease}" // view binding helpers
-    implementation "com.mikepenz:fastadapter-extensions-diff:${latestFastAdapterRelease}" // diff util helpers
-    implementation "com.mikepenz:fastadapter-extensions-drag:${latestFastAdapterRelease}" // drag support
-    implementation "com.mikepenz:fastadapter-extensions-paged:${latestFastAdapterRelease}" // paging support
-    implementation "com.mikepenz:fastadapter-extensions-scroll:${latestFastAdapterRelease}" // scroll helpers
-    implementation "com.mikepenz:fastadapter-extensions-swipe:${latestFastAdapterRelease}" // swipe support
-    implementation "com.mikepenz:fastadapter-extensions-ui:${latestFastAdapterRelease}" // pre-defined ui components
-    implementation "com.mikepenz:fastadapter-extensions-utils:${latestFastAdapterRelease}" // needs the `expandable`, `drag` and `scroll` extension.
+    implementation "com.mikepenz:fastadapter-extensions-binding:${latestFastAdapterRelease}"
+    // view binding helpers
+    implementation "com.mikepenz:fastadapter-extensions-diff:${latestFastAdapterRelease}"
+    // diff util helpers
+    implementation "com.mikepenz:fastadapter-extensions-drag:${latestFastAdapterRelease}"
+    // drag support
+    implementation "com.mikepenz:fastadapter-extensions-paged:${latestFastAdapterRelease}"
+    // paging support
+    implementation "com.mikepenz:fastadapter-extensions-scroll:${latestFastAdapterRelease}"
+    // scroll helpers
+    implementation "com.mikepenz:fastadapter-extensions-swipe:${latestFastAdapterRelease}"
+    // swipe support
+    implementation "com.mikepenz:fastadapter-extensions-ui:${latestFastAdapterRelease}"
+    // pre-defined ui components
+    implementation "com.mikepenz:fastadapter-extensions-utils:${latestFastAdapterRelease}"
+    // needs the `expandable`, `drag` and `scroll` extension.
 
+    implementation "androidx.annotation:annotation:1.1.0"
+
+    implementation "com.mikepenz:materialdrawer-nav:${lastestMaterialDrawerRelease}"
+    implementation "com.mikepenz:materialdrawer-iconics:${lastestMaterialDrawerRelease}"
 
 }

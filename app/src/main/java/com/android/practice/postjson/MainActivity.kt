@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.android.practice.postjson.adapter.GenericAdapter
@@ -38,6 +39,8 @@ class MainActivity : BaseActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var postAdapter: GenericAdapter<Post, PostViewHolder>
+    private val itemAdapter = ItemAdapter<SimpleItem>()
+    private val fastAdapter = FastAdapter.with(itemAdapter)
     private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,11 +107,23 @@ class MainActivity : BaseActivity() {
         }
         val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
             .apply {
-            setDrawable(getDrawable(R.drawable.divider)!!)
-        }
+                setDrawable(getDrawable(R.drawable.divider)!!)
+            }
 //        itemDecoration.setDrawable(getDrawable(R.drawable.divider)!!)
-        recyclerView.adapter = postAdapter
+//        recyclerView.adapter = postAdapter
+        recyclerView.adapter = fastAdapter
+        itemAdapter.add()
         recyclerView.addItemDecoration(itemDecoration)
+        fastAdapter.onClickListener = { view, adapter, item, position ->
+            Intent(this@MainActivity, PostDetailsActivity::class.java)
+                .apply {
+                    putExtra(POST_ID, item.id)
+                    putExtra(USER_ID, item.userId)
+                }.also {
+                    startActivityForResult(it, POST_DETAILS)
+                }
+            true
+        }
     }
 
     private fun loadData() {
@@ -130,8 +145,15 @@ class MainActivity : BaseActivity() {
         )
     }
 
-    private fun setDataInRecyclerView(it: List<Post>) {
-        postAdapter.addAll(it)
+    private fun setDataInRecyclerView(posts: List<Post>) {
+        posts.map {
+            itemAdapter.add(
+                SimpleItem().withId(it.id).withUserId(it.userId).withTitle(it.title)
+                    .withBody(it.body)
+            )
+        }
+//        itemAdapter.add(posts)
+//        postAdapter.addAll(it)
     }
 
     private fun initView() {

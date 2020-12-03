@@ -6,20 +6,40 @@ import com.android.practice.postjson.R
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 
-open class SimpleItem : AbstractItem<SimpleItem, SimpleItem.ViewHolder>() {
+open class SimpleItem : AbstractItem<SimpleItem.ViewHolder>() {
+    var userId: Int? = null
+    var id: Int? = null
     var title: String? = null
     var body: String? = null
 
-    /** defines the type defining this item. must be unique. preferably an id */
-//    override val type: Int
-//        get() = R.id.fastadapter_sample_item_id
-//
-//    /** defines the layout which will be used for this item in the list */
-//    override val layoutRes: Int
-//        get() = R.layout.post_item
+    override val type: Int
+        get() = R.id.fastadapter_sample_item_id
+
+    override val layoutRes: Int
+        get() = R.layout.post_item
 
     override fun getViewHolder(v: View): ViewHolder {
         return ViewHolder(v)
+    }
+
+    fun withId(id: Int): SimpleItem {
+        this.id = id
+        return this
+    }
+
+    fun withUserId(id: Int): SimpleItem {
+        this.userId = userId
+        return this
+    }
+
+    fun withTitle(name: String): SimpleItem {
+        this.title = name
+        return this
+    }
+
+    fun withBody(body: String): SimpleItem {
+        this.body = body
+        return this
     }
 
     class ViewHolder(view: View) : FastAdapter.ViewHolder<SimpleItem>(view) {
@@ -35,13 +55,5 @@ open class SimpleItem : AbstractItem<SimpleItem, SimpleItem.ViewHolder>() {
             title.text = null
             body.text = null
         }
-    }
-
-    override fun getType(): Int {
-        return R.id.fastadapter_sample_item_id
-    }
-
-    override fun getLayoutRes(): Int {
-        return R.layout.post_item
     }
 }

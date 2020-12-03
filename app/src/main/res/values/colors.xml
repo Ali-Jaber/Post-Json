@@ -10,4 +10,5 @@
     <color name="colorRed">#F43636</color>
     <color name="colorOfWhite">#f8f8ff</color>
     <color name="gray">#f7f4fb</color>
+    <color name="md_red_700">#D32F2F</color>
 </resources>
