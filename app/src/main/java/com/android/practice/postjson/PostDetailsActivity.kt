@@ -1,7 +1,6 @@
 package com.android.practice.postjson
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +10,6 @@ import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.model.User
 import com.android.practice.postjson.network.PostApiService
-import com.android.practice.postjson.util.PLEASE_WAIT
 import com.android.practice.postjson.util.POST_DELETE
 import com.android.practice.postjson.util.POST_ID
 import com.android.practice.postjson.util.USER_ID
@@ -35,6 +33,11 @@ class PostDetailsActivity : BaseActivity() {
     @Inject
     lateinit var retrofit: Retrofit
 
+//    private val viewModel: PostDetailsViewModel by lazy {
+//        ViewModelProviders.of(this).get(PostDetailsViewModel::class.java)
+//    }
+
+
     private lateinit var loadingDialog: LoadingDialog
     private val disposable = CompositeDisposable()
     private var postId: Int? = 0
@@ -49,6 +52,10 @@ class PostDetailsActivity : BaseActivity() {
         loadingDialog = LoadingDialog(this@PostDetailsActivity)
         title = getString(R.string.post_details_title)
 
+//        viewModel.getPostDetails().observe(this, Observer { t ->
+//            setDataInRecyclerView(t.)
+//        })
+
         postId = intent.extras?.getInt(POST_ID)
         userId = intent.extras?.getInt(USER_ID)
         loadData(postId)
@@ -56,6 +63,13 @@ class PostDetailsActivity : BaseActivity() {
         getUser(userId)
 
     }
+
+//    private fun setDataInRecyclerView(it: Post) {
+//        postDetails_title_textView.text = it.title
+//        postDetails_body_textView.text = it.body
+//        userId = it.userId
+//        post = Post(it.userId, it.id, it.title, it.body)
+//    }
 
     override fun onStop() {
         super.onStop()

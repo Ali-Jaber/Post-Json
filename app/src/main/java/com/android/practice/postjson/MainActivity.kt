@@ -6,28 +6,24 @@ import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.practice.postjson.adapter.GenericAdapter
 import com.android.practice.postjson.adapter.PostViewHolder
-import com.android.practice.postjson.adapter.SimpleItem
-import com.android.practice.postjson.di.NetComponent
+import com.android.practice.postjson.contract.PostContract
+import com.android.practice.postjson.contract.PostContract.Presenter
+import com.android.practice.postjson.contract.PostPresenter
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
 import com.android.practice.postjson.util.*
 import com.google.android.material.snackbar.Snackbar
-import com.mikepenz.fastadapter.FastAdapter
-import com.mikepenz.fastadapter.adapters.ItemAdapter
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Retrofit
 import javax.inject.Inject
 
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), PostContract.View {
 
     private val progressDialog by lazy { CustomProgressDialog() }
 
@@ -37,21 +33,64 @@ class MainActivity : BaseActivity() {
     @Inject
     lateinit var retrofit: Retrofit
 
+    private lateinit var mPresenter: Presenter
     private lateinit var recyclerView: RecyclerView
     private lateinit var postAdapter: GenericAdapter<Post, PostViewHolder>
-    private val itemAdapter = ItemAdapter<SimpleItem>()
-    private val fastAdapter = FastAdapter.with(itemAdapter)
-    private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        NetComponent.getComponent(this).inject(this)
+        mPresenter = PostPresenter(this)
+        mPresenter.start()
         initToolbar()
         title = getString(R.string.posts)
-        initList()
-        loadData()
+    }
+
+    override fun init() {
+        recyclerView = findViewById(R.id.post_recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        initAdapter()
         initView()
+        mPresenter.loadPosts()
+    }
+
+    override fun showError(message: String) {
+        Log.e("error", message)
+    }
+
+    override fun loadDataInList(posts: List<Post>) {
+        postAdapter.addAll(posts)
+    }
+
+    private fun initAdapter() {
+        postAdapter = object : GenericAdapter<Post, PostViewHolder>() {
+            override fun createVm(parent: ViewGroup, viewType: Int): PostViewHolder {
+                val view =
+                    LayoutInflater.from(parent.context).inflate(R.layout.post_item, parent, false)
+                return PostViewHolder(view)
+            }
+
+            override fun bindVm(holder: PostViewHolder, position: Int, item: Post) {
+                holder.title.text = item.title
+                holder.body.text = item.body
+                holder.itemView.setOnClickListener {
+                    Intent(this@MainActivity, PostDetailsActivity::class.java)
+                        .apply {
+                            putExtra(POST_ID, item.id)
+                            putExtra(USER_ID, item.userId)
+                        }.also {
+                            startActivityForResult(it, POST_DETAILS)
+                        }
+                }
+            }
+
+        }
+        val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+            .apply {
+                setDrawable(getDrawable(R.drawable.divider)!!)
+            }
+        recyclerView.adapter = postAdapter
+        recyclerView.addItemDecoration(itemDecoration)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -79,81 +118,7 @@ class MainActivity : BaseActivity() {
 
     override fun onStop() {
         super.onStop()
-        disposable.clear()
-    }
-
-    private fun initList() {
-        recyclerView = findViewById(R.id.post_recyclerView)
-        postAdapter = object : GenericAdapter<Post, PostViewHolder>() {
-            override fun createVm(parent: ViewGroup, viewType: Int): PostViewHolder {
-                val view =
-                    LayoutInflater.from(parent.context).inflate(R.layout.post_item, parent, false)
-                return PostViewHolder(view)
-            }
-
-            override fun bindVm(holder: PostViewHolder, position: Int, item: Post) {
-                holder.title.text = item.title
-                holder.body.text = item.body
-                holder.itemView.setOnClickListener {
-                    Intent(this@MainActivity, PostDetailsActivity::class.java)
-                        .apply {
-                            putExtra(POST_ID, item.id)
-                            putExtra(USER_ID, item.userId)
-                        }.also {
-                            startActivityForResult(it, POST_DETAILS)
-                        }
-                }
-            }
-        }
-        val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-            .apply {
-                setDrawable(getDrawable(R.drawable.divider)!!)
-            }
-//        itemDecoration.setDrawable(getDrawable(R.drawable.divider)!!)
-//        recyclerView.adapter = postAdapter
-        recyclerView.adapter = fastAdapter
-        itemAdapter.add()
-        recyclerView.addItemDecoration(itemDecoration)
-        fastAdapter.onClickListener = { view, adapter, item, position ->
-            Intent(this@MainActivity, PostDetailsActivity::class.java)
-                .apply {
-                    putExtra(POST_ID, item.id)
-                    putExtra(USER_ID, item.userId)
-                }.also {
-                    startActivityForResult(it, POST_DETAILS)
-                }
-            true
-        }
-    }
-
-    private fun loadData() {
-        postSwipeRefresh.isRefreshing = true
-        disposable.add(
-            postApiService.getPosts()
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext {
-                    progressDialog.show(this, PLEASE_WAIT)
-                }
-                ?.subscribeOn(Schedulers.io())
-                ?.subscribe({
-                    setDataInRecyclerView(it);
-                    postSwipeRefresh.isRefreshing = false
-                    progressDialog.dialog.dismiss()
-                }, {
-                    Log.e("error", "errors", it)
-                })
-        )
-    }
-
-    private fun setDataInRecyclerView(posts: List<Post>) {
-        posts.map {
-            itemAdapter.add(
-                SimpleItem().withId(it.id).withUserId(it.userId).withTitle(it.title)
-                    .withBody(it.body)
-            )
-        }
-//        itemAdapter.add(posts)
-//        postAdapter.addAll(it)
+        mPresenter.onViewDestroyed()
     }
 
     private fun initView() {
@@ -165,8 +130,12 @@ class MainActivity : BaseActivity() {
         }
 
         postSwipeRefresh.setOnRefreshListener {
-            loadData()
+            mPresenter.loadPosts()
         }
+    }
+
+    private fun setDataInRecyclerView(posts: List<Post>) {
+        postAdapter.addAll(posts)
     }
 
     private fun showSnackbar(message: String) {

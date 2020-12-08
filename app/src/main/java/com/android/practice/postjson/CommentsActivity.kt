@@ -1,13 +1,11 @@
 package com.android.practice.postjson
 
-import android.app.ProgressDialog
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +16,6 @@ import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.databinding.ActivityCommentsBinding
 import com.android.practice.postjson.model.Comments
 import com.android.practice.postjson.network.PostApiService
-import com.android.practice.postjson.util.PLEASE_WAIT
 import com.android.practice.postjson.util.POST_ID
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.holder.ColorHolder

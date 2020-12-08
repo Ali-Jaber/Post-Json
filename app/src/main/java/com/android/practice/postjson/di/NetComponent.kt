@@ -2,6 +2,7 @@ package com.android.practice.postjson.di
 
 import android.content.Context
 import com.android.practice.postjson.*
+import com.android.practice.postjson.ui.post.PostPresenter
 import dagger.Component
 
 
@@ -27,4 +28,5 @@ interface NetComponent {
     fun inject(activity: CommentsActivity)
     fun inject(activity: PostDetailsActivity)
     fun inject(activity: AddPostActivity)
+    fun inject(activity: PostPresenter)
 }
