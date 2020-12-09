@@ -8,6 +8,9 @@ apply plugin: 'kotlin-kapt'
 //    id 'kotlin-android'
 //}
 
+androidExtensions{
+    experimental true
+}
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -57,6 +60,7 @@ dependencies {
     def dagger2_version = "2.29.1"
     def latestFastAdapterRelease = "5.3.2"
     def lastestMaterialDrawerRelease = "8.2.0"
+    def groupie_version = "2.8.1"
 
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
@@ -112,4 +116,6 @@ dependencies {
     implementation "com.mikepenz:materialdrawer-nav:${lastestMaterialDrawerRelease}"
     implementation "com.mikepenz:materialdrawer-iconics:${lastestMaterialDrawerRelease}"
 
+    implementation "com.xwray:groupie:${groupie_version}"
+    implementation "com.xwray:groupie-kotlin-android-extensions:$groupie_version"
 }

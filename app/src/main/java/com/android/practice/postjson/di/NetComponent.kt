@@ -1,8 +1,8 @@
 package com.android.practice.postjson.di
 
-import android.content.Context
 import com.android.practice.postjson.*
-import com.android.practice.postjson.ui.post.PostPresenter
+import com.android.practice.postjson.contract.PostPresenter
+import com.android.practice.postjson.ui.PostDetailsViewModel
 import dagger.Component
 
 
@@ -15,7 +15,7 @@ interface NetComponent {
         private var component: NetComponent? = null
 
         @Synchronized
-        fun getComponent(context: Context): NetComponent =
+        fun getComponent(): NetComponent =
             component
                 ?: DaggerNetComponent.builder()
                     .build()
@@ -28,5 +28,6 @@ interface NetComponent {
     fun inject(activity: CommentsActivity)
     fun inject(activity: PostDetailsActivity)
     fun inject(activity: AddPostActivity)
-    fun inject(activity: PostPresenter)
+    fun inject(postDetailsViewModel: PostDetailsViewModel)
+    fun inject(postPresenter: PostPresenter)
 }

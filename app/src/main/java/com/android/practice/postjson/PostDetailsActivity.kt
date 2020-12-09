@@ -6,15 +6,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import com.android.practice.postjson.di.NetComponent
+import androidx.lifecycle.ViewModelProvider
 import com.android.practice.postjson.model.Post
-import com.android.practice.postjson.model.User
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.ui.PostDetailsViewModel
 import com.android.practice.postjson.util.POST_DELETE
 import com.android.practice.postjson.util.POST_ID
 import com.android.practice.postjson.util.USER_ID
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_post_details.*
@@ -30,50 +28,51 @@ class PostDetailsActivity : BaseActivity() {
     @Inject
     lateinit var postApiService: PostApiService
 
-    @Inject
-    lateinit var retrofit: Retrofit
-
-//    private val viewModel: PostDetailsViewModel by lazy {
-//        ViewModelProviders.of(this).get(PostDetailsViewModel::class.java)
-//    }
-
 
     private lateinit var loadingDialog: LoadingDialog
-    private val disposable = CompositeDisposable()
     private var postId: Int? = 0
     private var userId: Int? = 0
     private var post: Post? = null
+    private lateinit var viewModel: PostDetailsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post_details)
-        NetComponent.getComponent(this).inject(this)
         initToolbar()
         loadingDialog = LoadingDialog(this@PostDetailsActivity)
         title = getString(R.string.post_details_title)
 
-//        viewModel.getPostDetails().observe(this, Observer { t ->
-//            setDataInRecyclerView(t.)
-//        })
-
         postId = intent.extras?.getInt(POST_ID)
         userId = intent.extras?.getInt(USER_ID)
-        loadData(postId)
-        handelButton(postId)
-        getUser(userId)
 
+        viewModel = ViewModelProvider(this).get(PostDetailsViewModel::class.java)
+        viewModel.apply {
+            getPostDetails(postId)
+            getUser(userId)
+            postDetailsObserve()
+            userObserve()
+        }
+        handelButton(postId)
     }
 
-//    private fun setDataInRecyclerView(it: Post) {
-//        postDetails_title_textView.text = it.title
-//        postDetails_body_textView.text = it.body
-//        userId = it.userId
-//        post = Post(it.userId, it.id, it.title, it.body)
-//    }
+    private fun PostDetailsViewModel.postDetailsObserve() {
+        postDetailsList.observe(this@PostDetailsActivity, {
+            postDetails_title_textView.text = it.title
+            postDetails_body_textView.text = it.body
+            userId = it.userId
+            post = Post(it.userId, it.id, it.title, it.body)
+        })
+    }
+
+    private fun PostDetailsViewModel.userObserve() {
+        user.observe(this@PostDetailsActivity, {
+            postDetails_name_textView.text = it.name
+        })
+    }
 
     override fun onStop() {
         super.onStop()
-        disposable.dispose()
+        viewModel.onViewDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -119,83 +118,8 @@ class PostDetailsActivity : BaseActivity() {
             }, {
                 Log.e("error", "errors", it)
             })
-
     }
 
-    private fun loadData(postId: Int?) {
-        disposable.add(
-            postApiService.getPostDetails(postId!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext {
-                    loadingDialog.startLoadingDialog()
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    postDetails_title_textView.text = it.title
-                    postDetails_body_textView.text = it.body
-                    userId = it.userId
-                    post = Post(it.userId, it.id, it.title, it.body)
-//                    progressDialog.dialog.dismiss()
-                    loadingDialog.dismissDialog()
-                }, {
-                    Log.e("error", "errors", it)
-                    loadingDialog.dismissDialog()
-                })
-        )
-    }
-
-    private fun getUser(userId: Int?) {
-        disposable.add(
-            postApiService.getUser(userId!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    postDetails_name_textView.text = it.name
-                }, {
-                    Log.e("error", "errors", it)
-                })
-        )
-    }
-
-    private fun requestResults() {
-//        Observable.zip(
-//            postApiService.getPostDetails(1),
-//            postApiService.getUser(1),
-//            Function2<<Post>, <User>, Unit> {
-//            response1, response2 ->
-//            this.response1 = response1
-//            this.response2 = response2
-//            )
-        val postDetails: Observable<Post> = postApiService.getPostDetails(1)
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-        val user: Observable<User> = postApiService.getUser(1)
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-
-//        val combined: Observable<PostAndUser> = Observable.zip(
-//            postDetails,
-//            user,
-//            object : Func2<Post?, User?, PostAndUser?>() {
-//                fun call(post: Post?, user: User?): PostAndUser? {
-//                    return PostAndUser(post, user)
-//                }
-//            })
-
-        Observable.merge(postDetails, user)
-            .subscribeOn(Schedulers.computation())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                it as Post
-                it.title
-                it as User
-                it.name
-            },
-                {
-                    Log.e("error", "errors", it)
-                }
-            )
-    }
 
     private fun handelButton(postId: Int?) {
         comments_btn.setOnClickListener {

@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.android.practice.postjson.adapter.CommentsViewHolder
 import com.android.practice.postjson.adapter.GenericAdapter
-import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.databinding.ActivityCommentsBinding
+import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Comments
 import com.android.practice.postjson.network.PostApiService
 import com.android.practice.postjson.util.POST_ID
@@ -27,6 +27,8 @@ import com.mikepenz.materialdrawer.model.interfaces.*
 import com.mikepenz.materialdrawer.util.addItems
 import com.mikepenz.materialdrawer.util.addStickyFooterItem
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.GroupieViewHolder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -36,12 +38,12 @@ import javax.inject.Inject
 
 class CommentsActivity : AppCompatActivity() {
 
-//    private val progressDialog by lazy { CustomProgressDialog() }
-
     private lateinit var binding: ActivityCommentsBinding
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var headerView: AccountHeaderView
     private lateinit var loadingDialog: LoadingDialog
+    private val groupAdapter = GroupAdapter<GroupieViewHolder>()
+
 
     @Inject
     lateinit var postApiService: PostApiService
@@ -55,15 +57,13 @@ class CommentsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_comments)
         binding = ActivityCommentsBinding.inflate(layoutInflater).also {
             setContentView(it.root)
         }
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
-        NetComponent.getComponent(this).inject(this)
-//        initToolbar()
+        NetComponent.getComponent().inject(this)
         title = getString(R.string.comments_title)
         loadingDialog = LoadingDialog(this@CommentsActivity)
 
@@ -162,22 +162,7 @@ class CommentsActivity : AppCompatActivity() {
 
     private fun initList() {
         recyclerView = findViewById(R.id.comment_recyclerView)
-        commentsAdapter = object : GenericAdapter<Comments, CommentsViewHolder>() {
-
-            override fun createVm(parent: ViewGroup, viewType: Int): CommentsViewHolder {
-                val view =
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.comments_item, parent, false)
-                return CommentsViewHolder(view)
-            }
-
-            override fun bindVm(holder: CommentsViewHolder, position: Int, item: Comments) {
-                holder.name.text = item.name
-                holder.body.text = item.body
-                holder.email.text = item.email
-            }
-        }
-        recyclerView.adapter = commentsAdapter
+        recyclerView.adapter = groupAdapter
     }
 
     private fun loadData(postId: Int?) {
@@ -185,15 +170,11 @@ class CommentsActivity : AppCompatActivity() {
         disposable.add(
             postApiService.getCommentsDetails(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
-//                .doOnSubscribe {
-//                    loadingDialog.startLoadingDialog()
-//                }
                 .subscribeOn(Schedulers.io())
-//                .doOnTerminate {
-//                }
                 .subscribe({
-                    setDataInRecyclerView(it)
-//                    progressDialog.dialog.dismiss()
+                    it.map { comment ->
+                        groupAdapter.add(CommentItem(comment))
+                    }
                     commentSwipeRefresh.isRefreshing = false
                     loadingDialog.dismissDialog()
                 }, {
@@ -206,9 +187,5 @@ class CommentsActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         disposable.clear()
-    }
-
-    private fun setDataInRecyclerView(it: List<Comments>) {
-        commentsAdapter.addAll(it)
     }
 }

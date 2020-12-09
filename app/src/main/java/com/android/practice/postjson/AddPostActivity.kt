@@ -27,7 +27,7 @@ class AddPostActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_post)
-        NetComponent.getComponent(this).inject(this)
+        NetComponent.getComponent().inject(this)
         initToolbar()
         title = getString(R.string.add_post)
         initView()
