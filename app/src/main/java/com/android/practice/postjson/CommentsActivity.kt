@@ -16,6 +16,8 @@ import com.android.practice.postjson.databinding.ActivityCommentsBinding
 import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Comments
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.services.jsonplaceholder.PostService
+import com.android.practice.postjson.services.jsonplaceholder.PostServiceRemoteImpl
 import com.android.practice.postjson.util.POST_ID
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.holder.ColorHolder
@@ -47,6 +49,7 @@ class CommentsActivity : AppCompatActivity() {
 
     @Inject
     lateinit var postApiService: PostApiService
+    private lateinit var postService: PostService
 
     @Inject
     lateinit var retrofit: Retrofit
@@ -64,6 +67,7 @@ class CommentsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         NetComponent.getComponent().inject(this)
+        postService = PostServiceRemoteImpl(postApiService)
         title = getString(R.string.comments_title)
         loadingDialog = LoadingDialog(this@CommentsActivity)
 
@@ -168,7 +172,7 @@ class CommentsActivity : AppCompatActivity() {
     private fun loadData(postId: Int?) {
         commentSwipeRefresh.isRefreshing = true
         disposable.add(
-            postApiService.getCommentsDetails(postId!!)
+            postService.getPostComments(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({

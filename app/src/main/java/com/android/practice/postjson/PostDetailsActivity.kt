@@ -45,6 +45,11 @@ class PostDetailsActivity : BaseActivity() {
         postId = intent.extras?.getInt(POST_ID)
         userId = intent.extras?.getInt(USER_ID)
 
+        initViewModel()
+        handelButton(postId)
+    }
+
+    private fun initViewModel() {
         viewModel = ViewModelProvider(this).get(PostDetailsViewModel::class.java)
         viewModel.apply {
             getPostDetails(postId)
@@ -52,7 +57,6 @@ class PostDetailsActivity : BaseActivity() {
             postDetailsObserve()
             userObserve()
         }
-        handelButton(postId)
     }
 
     private fun PostDetailsViewModel.postDetailsObserve() {

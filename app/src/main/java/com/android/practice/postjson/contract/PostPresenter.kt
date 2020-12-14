@@ -2,8 +2,9 @@ package com.android.practice.postjson.contract
 
 import android.util.Log
 import com.android.practice.postjson.di.NetComponent
-import com.android.practice.postjson.di.RetrofitModule
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.services.jsonplaceholder.PostService
+import com.android.practice.postjson.services.jsonplaceholder.PostServiceRemoteImpl
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -14,9 +15,11 @@ class PostPresenter(private val mView: PostContract.View) : PostContract.Present
     @Inject
     lateinit var apiService: PostApiService
     private val disposable = CompositeDisposable()
+    private var postService: PostService
 
     init {
         NetComponent.getComponent().inject(this)
+        postService = PostServiceRemoteImpl(apiService)
     }
 
     override fun start() {
@@ -25,7 +28,7 @@ class PostPresenter(private val mView: PostContract.View) : PostContract.Present
 
     override fun loadPosts() {
         disposable.add(
-            apiService.getPosts()
+            postService.list()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({

@@ -7,6 +7,8 @@ import com.android.practice.postjson.di.NetComponent
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.model.User
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.services.jsonplaceholder.PostService
+import com.android.practice.postjson.services.jsonplaceholder.PostServiceRemoteImpl
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -16,12 +18,15 @@ class PostDetailsViewModel : ViewModel() {
 
     @Inject
     lateinit var postApiService: PostApiService
+    private var postService: PostService
+
     private val disposable = CompositeDisposable()
     var postDetailsList = MutableLiveData<Post>()
     var user = MutableLiveData<User>()
 
     init {
         NetComponent.getComponent().inject(this)
+        postService = PostServiceRemoteImpl(postApiService)
     }
 
     fun getPostDetails(postId: Int?): MutableLiveData<Post> {
@@ -31,7 +36,7 @@ class PostDetailsViewModel : ViewModel() {
 
     private fun loadData(postId: Int?) {
         disposable.add(
-            postApiService.getPostDetails(postId!!)
+            postService.get(postId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
@@ -44,7 +49,7 @@ class PostDetailsViewModel : ViewModel() {
 
     fun getUser(userId: Int?) {
         disposable.add(
-            postApiService.getUser(userId!!)
+            postService.getUserById(userId!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
@@ -56,6 +61,6 @@ class PostDetailsViewModel : ViewModel() {
     }
 
     fun onViewDestroy() {
-    disposable.dispose()
+        disposable.dispose()
     }
 }

@@ -16,6 +16,8 @@ import com.android.practice.postjson.contract.PostContract.Presenter
 import com.android.practice.postjson.contract.PostPresenter
 import com.android.practice.postjson.model.Post
 import com.android.practice.postjson.network.PostApiService
+import com.android.practice.postjson.services.jsonplaceholder.PostService
+import com.android.practice.postjson.services.jsonplaceholder.PostServiceRemoteImpl
 import com.android.practice.postjson.util.*
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,8 +29,9 @@ class MainActivity : BaseActivity(), PostContract.View {
 
     private val progressDialog by lazy { CustomProgressDialog() }
 
-    @Inject
-    lateinit var postApiService: PostApiService
+//    @Inject
+//    lateinit var postApiService: PostApiService
+//    private val postService: PostService = PostServiceRemoteImpl(postApiService)
 
     @Inject
     lateinit var retrofit: Retrofit
